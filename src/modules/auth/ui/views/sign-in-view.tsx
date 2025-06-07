@@ -6,8 +6,9 @@ import Image from "next/image";
 import { OctagonAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -48,8 +49,10 @@ export const SignInView = () => {
         authClient.signIn.email(
             {
                 email: data.email,
-                password: data.password
-            }, {
+                password: data.password,
+                callbackURL: "/"
+            },
+            {
                 onSuccess: () => {
                     setPending(false);
                     router.push("/");
@@ -60,6 +63,27 @@ export const SignInView = () => {
                 }
             }
         );
+    }
+
+    const onSocial = (provider: "google" | "github") => {
+        setError(null);
+        setPending(true);
+
+        authClient.signIn.social(
+            {
+                provider: provider,
+                callbackURL: "/"
+            },
+            {
+                onSuccess: () => {
+                    setPending(false);
+                },
+                onError: ({ error }) => {
+                    setPending(false);
+                    setError(error.message);
+                }
+            }
+        )
     }
 
     return (
@@ -135,17 +159,19 @@ export const SignInView = () => {
                                         disabled={pending}
                                         variant="outline"
                                         type="button"
+                                        onClick={() => onSocial("google")}
                                         className="w-full cursor-pointer"
                                     >
-                                        Google
+                                        <FaGoogle />
                                     </Button>
                                     <Button
                                         disabled={pending}
                                         variant="outline"
                                         type="button"
                                         className="w-full cursor-pointer"
+                                        onClick={() => onSocial("github")}
                                     >
-                                        Github
+                                        <FaGithub />
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
